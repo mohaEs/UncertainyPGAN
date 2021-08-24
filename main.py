@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
 
     transform_train = transforms.Compose([
-                transforms.Resize((int(img_size),int(img_size))),
+                transforms.Resize((int(img_size),int(img_size))),                
                 transforms.Grayscale(num_output_channels=1),  
                 transforms.ToTensor(),                 
     ])
@@ -122,7 +122,7 @@ if __name__ == '__main__':
         device= device,
         num_epochs=num_epochs,
         init_lr=1e-5,
-        ckpt_path='./ckpt/i2i_0_UNet3headGAN',
+        ckpt_path=os.path.join(path_checkpoint,'i2i_0_UNet3headGAN'),
         )
 
     ###############
@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
     # first load the prior Generators 
     netG_A0 = CasUNet_3head(1,1)
-    netG_A0.load_state_dict(torch.load('./ckpt/i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A0.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
 
     #initialize the current GAN
     netG_A1 = UNet_3head(4,1)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         device= device,
         num_epochs=num_epochs,
         init_lr=1e-5,
-        ckpt_path='./ckpt/i2i_1_UNet3headGAN',
+        ckpt_path=os.path.join(path_checkpoint,'i2i_1_UNet3headGAN'),
     )    
 
     ###############
@@ -158,9 +158,9 @@ if __name__ == '__main__':
 
     # first load the prior Generators 
     netG_A0 = CasUNet_3head(1,1)
-    netG_A0.load_state_dict(torch.load('./ckpt/i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A0.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
     netG_A1 = UNet_3head(4,1)
-    netG_A1.load_state_dict(torch.load('./ckpt/i2i_1_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A1.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_1_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
 
     #initialize the current GAN
     netG_A2 = UNet_3head(4,1)
@@ -174,7 +174,7 @@ if __name__ == '__main__':
         device='cuda',
         num_epochs = num_epochs,
         init_lr=1e-5,
-        ckpt_path='./ckpt/i2i_2_UNet3headGAN',
+        ckpt_path=os.path.join(path_checkpoint,'i2i_2_UNet3headGAN'),
     )
 
     ###############
@@ -184,11 +184,11 @@ if __name__ == '__main__':
     print('==> Testing ...' )
 
     netG_A0 = CasUNet_3head(1,1)
-    netG_A0.load_state_dict(torch.load('./ckpt/i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A0.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_0_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
     netG_A1 = UNet_3head(4,1)
-    netG_A1.load_state_dict(torch.load('./ckpt/i2i_1_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A1.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_1_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
     netG_A2 = UNet_3head(4,1)
-    netG_A2.load_state_dict(torch.load('./ckpt/i2i_2_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth'))
+    netG_A2.load_state_dict(torch.load(os.path.join(path_checkpoint,'i2i_2_UNet3headGAN_eph' + str(num_epochs-1) + '_G_A.pth')))
 
     for i, batch in enumerate(test_loader):  
 
