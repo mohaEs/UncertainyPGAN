@@ -25,7 +25,7 @@ from src.utils_Moha import train_i2i_Cas_UNet3headGAN
 import src.losses
 
 
-class CustomDataset(torch.utils.data.Dataset):
+class CustomDataset_train(torch.utils.data.Dataset):
     def __init__(self, csv_path, image_path, image_target_path, transform = None):
         self.df = pd.read_csv(csv_path)
         self.image_path = image_path
@@ -35,21 +35,37 @@ class CustomDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.df)
 
-    def __getitem__(self, index):
-        #ID = str(self.df.loc[index, 'ID'])
+    def __getitem__(self, index):        
         filename = str(self.df.loc[index, 'filename'])
-        #filename2 = str(self.df.loc[index, 'Right-Fundus'])
-        #label = self.df.loc[index, ['N', 'D', 'G', 'C', 'A', 'H', 'M', 'O']].to_numpy(dtype = int)
         image1 = PIL.Image.open(os.path.join(self.image_path, filename))
         image_target = PIL.Image.open(os.path.join(self.image_target_path, filename[:-3]+'png'))
         
-        #image_target=transforms.Grayscale(num_output_channels=1)(image_target)
         if self.transform is not None:
             image1 = self.transform(image1)
             image_target = self.transform(image_target)
+
         return image1, image_target, filename#, label, int(ID)
 
 
+
+class CustomDataset_test(torch.utils.data.Dataset):
+    def __init__(self, csv_path, image_path, transform = None):
+        self.df = pd.read_csv(csv_path)
+        self.image_path = image_path
+        self.transform = transform
+    
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, index):
+        
+        filename = str(self.df.loc[index, 'filename'])
+        image1 = PIL.Image.open(os.path.join(self.image_path, filename))
+
+        if self.transform is not None:
+            image1 = self.transform(image1)
+
+        return image1, filename#, label, int(ID)
 
 
 
@@ -62,9 +78,9 @@ if __name__ == '__main__':
     img_size = 256
     batch_size = 2
 
-    num_epochs_primeGANs = 100
-    num_epochs_subGAN_1st = 20
-    num_epochs_subGAN_2nd = 20
+    num_epochs_primeGANs = 5
+    num_epochs_subGAN_1st = 2
+    num_epochs_subGAN_2nd = 2
     
     dice_weight_primeGANs = 5
     dice_weight_subGAN_1st = 3
@@ -105,21 +121,21 @@ if __name__ == '__main__':
 
 
     transform_train = transforms.Compose([
-                transforms.Resize((int(img_size),int(img_size))),                
+                transforms.Resize((int(img_size), int(img_size))),                
                 transforms.Grayscale(num_output_channels=1),  
                 transforms.ToTensor(),                 
     ])
 
     
     transform_test = transforms.Compose([
-                transforms.Resize((int(img_size),int(img_size))),   
+                transforms.Resize((int(img_size), int(img_size))),   
                 transforms.Grayscale(num_output_channels=1),  
                 transforms.ToTensor()
     ])
 
 
-    trainset= CustomDataset(path_train_csv, path_train_image, path_train_image_target, transform_train)
-    testset = CustomDataset(path_test_csv, path_test_image, path_test_image_target, transform_test)
+    trainset= CustomDataset_train(path_train_csv, path_train_image, path_train_image_target, transform_train)
+    testset = CustomDataset_test(path_test_csv, path_test_image, transform_test)
 
     train_loader = torch.utils.data.DataLoader(trainset, batch_size = batch_size, num_workers=4, shuffle = True)
     test_loader = torch.utils.data.DataLoader(testset, batch_size = 1, num_workers=1, shuffle = False)
@@ -214,8 +230,7 @@ if __name__ == '__main__':
     for i, batch in enumerate(test_loader):  
 
         xA = batch[0]#.to(device).type(dtype)
-        xB = batch[1]#.to(device).type(dtype)
-        filename = batch[2]        
+        filename = batch[1]        
         filename = filename[0]
         #print(type(filename[0]))
         #calc all the required outputs
