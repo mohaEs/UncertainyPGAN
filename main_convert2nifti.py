@@ -6,6 +6,7 @@ import nibabel as nib
 from glob import glob
 from skimage import io
 from skimage.transform import resize
+from skimage.filters import threshold_otsu
 # from nibabel.testing import data_path
 
 
@@ -22,17 +23,17 @@ from skimage.transform import resize
 
 # nib.save(array_img, 'test4d.nii.gz')  
 
-path_phase = 'Validation' # perghaps we need to change this for test phase
+path_phase = 'Testing' # perghaps we need to change this for test phase
 path_4save = 'Results'
-path_input_list = ['./validation_data_qubiq2021_QC/brain-growth',
-                   './validation_data_qubiq2021_QC/kidney',
-                   './validation_data_qubiq2021_QC/brain-tumor',
-                   './validation_data_qubiq2021_QC/brain-tumor',
-                   './validation_data_qubiq2021_QC/brain-tumor',
-                   './validation_data_qubiq2021_QC/pancreas',
-                   './validation_data_qubiq2021_QC/pancreatic-lesion',
-                   './validation_data_qubiq2021_QC/prostate',
-                   './validation_data_qubiq2021_QC/prostate']
+path_input_list = ['./QUBIQ21_test/brain-growth',
+                   './QUBIQ21_test/kidney',
+                   './QUBIQ21_test/brain-tumor',
+                   './QUBIQ21_test/brain-tumor',
+                   './QUBIQ21_test/brain-tumor',
+                   './QUBIQ21_test/pancreas',
+                   './QUBIQ21_test/pancreatic-lesion',
+                   './QUBIQ21_test/prostate',
+                   './QUBIQ21_test/prostate']
                    
 Regions_list = ['brain-growth',
                    'kidney',
@@ -115,8 +116,19 @@ for i in range(len(path_input_list)): #-2
                        anti_aliasing=True)
             
             img_res = img_res/np.max(img_res)
-            
-            array_img = nib.Nifti1Image(img_res, AFFINE, hdr)
+
+            thresh = threshold_otsu(img_res)
+            binary = img_res > thresh
+            # plt.imshow(binary)
+            img_post = img_res * binary
+            # plt.imshow(img_post)
+            # label = measure.label(binary)
+            # plt.imshow(label)
+            # props=measure.regionprops(label)
+            # len(props)
+
+           
+            array_img = nib.Nifti1Image(img_post, AFFINE, hdr)
             nib.save(array_img, os.path.join(subsubdir4save, names_tasks_list[i]+ '.nii.gz'))   
                 
         else:
@@ -135,15 +147,24 @@ for i in range(len(path_input_list)): #-2
                 if dim_slices==0:
                     img_res = resize(img_res, (shape_img[1], shape_img[2]),
                        anti_aliasing=True)
-                    array_img_res[jj,:,:] = img_res
+                    thresh = threshold_otsu(img_res)
+                    binary = img_res > thresh            
+                    img_post = img_res * binary
+                    array_img_res[jj,:,:] = img_post
                 elif dim_slices==1:
                     img_res = resize(img_res, (shape_img[0], shape_img[2]),
                        anti_aliasing=True)
-                    array_img_res[:,jj,:] = img_res
+                    thresh = threshold_otsu(img_res)
+                    binary = img_res > thresh            
+                    img_post = img_res * binary
+                    array_img_res[:,jj,:] = img_post
                 elif dim_slices==2:
                     img_res = resize(img_res, (shape_img[0], shape_img[1]),
                        anti_aliasing=True)
-                    array_img_res[:,:,jj] = img_res
+                    thresh = threshold_otsu(img_res)
+                    binary = img_res > thresh            
+                    img_post = img_res * binary
+                    array_img_res[:,:,jj] = img_post
                 
             
             # averaging for brain tumor
