@@ -40,9 +40,13 @@ class CustomDataset_train(torch.utils.data.Dataset):
         image1 = PIL.Image.open(os.path.join(self.image_path, filename))
         image_target = PIL.Image.open(os.path.join(self.image_target_path, filename[:-3]+'png'))
         
-        s = image_target.getextrema()
-        # print('==>', s[1])
+        #################################
+        # comment this part for pancreas cases
+        # because we have zero masks
+        s = image_target.getextrema()        
         image_target = image_target.point(lambda i: i * (255/s[1]))
+        # print('==>', s[1])
+        #################################
 
         if self.transform is not None:
             image1 = self.transform(image1)
