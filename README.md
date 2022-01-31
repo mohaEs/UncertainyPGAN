@@ -1,5 +1,4 @@
 # UncertainyPGAN
- UnderDevelopment
 
 This repository contrains the scripts used for the challenge 
 https://qubiq21.grand-challenge.org/
@@ -12,6 +11,8 @@ https://arxiv.org/abs/2106.15542
 
 To improve the results, the soft dice criterion is added to the loss function: </br>
 main_v2_dice.py
+
+The complete description of the method is available at _report.pdf_
 
 postprocessing and converting outputs to nifti files: </br>
 main_convert2nifti.py 
